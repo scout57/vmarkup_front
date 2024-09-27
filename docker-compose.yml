@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+
+  web:
+    image: node:20-alpine
+    restart: "no"
+    env_file:
+      - .env.example
+      - .env
+    volumes:
+      - ./app:/project/app
+    working_dir: /project/app
+    ports:
+      - ${HTTP_PORT_HOST}:8080
+    command:
+      [
+        sh,
+        -c,
+        "npm c set cache /tmp --global && tail -f /dev/null"
+      ]
