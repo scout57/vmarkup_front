@@ -12,7 +12,6 @@
           show-size
           v-model="file"
           variant="outlined"
-          prepend-icon=""
         ></v-file-input>
 
         <v-btn
