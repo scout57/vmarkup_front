@@ -2,7 +2,7 @@
   <v-container class="px-0" max-width="600">
     <v-form class="d-flex py-4 mb-4" max-width="600">
       <v-text-field
-        v-model="firstName"
+        v-model="search"
         class="mr-4"
         label="Запрос"
         variant="solo"
@@ -22,82 +22,61 @@
   <v-card class="mx-auto px-4 py-4" max-width="600" title="Результат поиска"
           subtitle="Список видео подходящих под условия">
 
-    <v-table
-      fixed-header
-    >
-      <thead>
-      <tr>
-        <th class="text-left">
-          ID
-        </th>
-        <th class="text-left">
-          Описание
-        </th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr
-        v-for="item in desserts"
-        :key="item.name"
-      >
-        <td>{{ item.name }}</td>
-        <td>{{ item.calories }}</td>
-      </tr>
-      </tbody>
-    </v-table>
+    <v-data-table-server
+      v-model:items-per-page="itemsPerPage"
+      :headers="headers"
+      :items="serverItems"
+      :items-length="totalItems"
+      :loading="loading"
+      :search="search"
+      item-value="name"
+      @update:options="loadItems"
+    ></v-data-table-server>
   </v-card>
 </template>
 <script>
-
+import {http} from '@/shared'
 
 export default {
-  data() {
-    return {
-      firstName: '',
-      lastName: '',
-      desserts: [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-        },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-        },
-      ],
-    }
+  data: () => ({
+    itemsPerPage: 5,
+    headers: [
+      {
+        title: 'ID',
+        align: 'start',
+        sortable: false,
+        key: 'id',
+      },
+      {
+        title: 'Название',
+        align: 'start',
+        sortable: false,
+        key: 'name',
+      },
+    ],
+    search: '',
+    serverItems: [],
+    loading: true,
+    totalItems: 0,
+  }),
+  methods: {
+    async loadItems({page, itemsPerPage}) {
+      this.loading = true
+      const result = await http.request('/api/v1/video', {}, {
+        limit: itemsPerPage,
+        offset: page * itemsPerPage,
+      }, {}, 'GET')
+
+      this.serverItems = result.data.items;
+      this.totalItems = result.data.meta.total;
+      this.loading = false;
+
+      // http.FakeAPI.fetch({page, itemsPerPage, sortBy}).then(({items, total}) => {
+      //   this.serverItems = items
+      //   this.totalItems = total
+      //   this.loading = false
+      // })
+    },
   },
 }
 </script>
