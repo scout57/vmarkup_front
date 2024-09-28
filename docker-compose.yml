@@ -2,6 +2,19 @@ version: '3.7'
 
 services:
 
+  api:
+    image: node:20-alpine
+    restart: "no"
+    env_file:
+      - .env.example
+      - .env
+    volumes:
+      - ./api:/project/api
+    working_dir: /project/api
+    ports:
+      - ${API_HTTP_PORT_HOST}:80
+    command: [ sh, -c, "npm c set cache /tmp --global && tail -f /dev/null" ]
+
   web:
     image: node:20-alpine
     restart: "no"
@@ -13,9 +26,4 @@ services:
     working_dir: /project/web
     ports:
       - ${WEB_HTTP_PORT_HOST}:8080
-    command:
-      [
-        sh,
-        -c,
-        "npm c set cache /tmp --global && tail -f /dev/null"
-      ]
+    command: [ sh, -c, "npm c set cache /tmp --global && tail -f /dev/null" ]

@@ -1,6 +1,6 @@
 {
-  "name": "example",
-  "version": "0.0.0",
+  "name": "hackaton-vmarkup-api",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite --port 8080",
     "build": "vue-tsc --noEmit && vite build",
