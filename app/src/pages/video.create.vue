@@ -1,6 +1,6 @@
 <template>
   <v-sheet class="bg-deep-purple pa-12 h-screen" rounded>
-    <v-card class="mx-auto px-6 py-6" max-width="600" title="Добавление видео">
+    <v-card class="mx-auto px-6 py-6" max-width="600" title="Новое видео">
       <v-form
         v-model="form"
         @submit.prevent="onSubmit"
@@ -12,6 +12,7 @@
           show-size
           v-model="file"
           variant="outlined"
+          prepend-icon=""
         ></v-file-input>
 
         <v-btn
@@ -32,7 +33,7 @@
 
 
 <script setup>
-function onSubmit() {
+const onSubmit = () => {
   console.log('sent')
 }
 </script>
@@ -41,7 +42,8 @@ function onSubmit() {
 export default {
   data: () => ({
     form: false,
-    file: '',
+    file: undefined,
+    loading: false,
   }),
 }
 </script>
