@@ -1,10 +1,10 @@
 <template>
-  <v-container class="px-0" max-width="600">
-    <v-form class="d-flex py-4 mb-4" max-width="600">
+  <v-container class="px-0">
+    <v-form class="d-flex">
       <v-text-field
         v-model="search"
         class="mr-4"
-        label="Запрос"
+        label="Введите запрос"
         variant="solo"
       ></v-text-field>
 
@@ -19,7 +19,7 @@
     </v-form>
   </v-container>
 
-  <v-card class="mx-auto px-4 py-4" max-width="600" title="Результат поиска"
+  <v-card class="mx-auto px-4 py-4" title="Результат поиска"
           subtitle="Список видео подходящих под условия">
 
     <v-data-table-server
@@ -29,9 +29,17 @@
       :items-length="totalItems"
       :loading="loading"
       :search="search"
-      item-value="name"
+      hover
+      item-selectable
+      item-key="id"
       @update:options="loadItems"
-    ></v-data-table-server>
+      @click:row="rowClick"
+    >
+      <template v-slot:item.data-table-select>
+
+      </template>
+
+    </v-data-table-server>
   </v-card>
 </template>
 <script>
@@ -46,12 +54,13 @@ export default {
         align: 'start',
         sortable: false,
         key: 'id',
+
       },
       {
         title: 'Название',
         align: 'start',
         sortable: false,
-        key: 'name',
+        value: 'name',
       },
     ],
     search: '',
@@ -60,11 +69,14 @@ export default {
     totalItems: 0,
   }),
   methods: {
+    rowClick(item, row) {
+      this.$router.push(`/video/${row.item.id}`)
+    },
     async loadItems({page, itemsPerPage}) {
       this.loading = true
       const result = await http.request('/api/v1/video', {}, {
         limit: itemsPerPage,
-        offset: page * itemsPerPage,
+        offset: (page - 1) * itemsPerPage,
       }, {}, 'GET')
 
       this.serverItems = result.data.items;

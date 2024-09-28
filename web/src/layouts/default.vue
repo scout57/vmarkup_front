@@ -1,10 +1,7 @@
 <template>
   <v-responsive class="border rounded">
-    <v-app :theme="theme">
+    <v-app :theme="theme" class="bg-surface-light">
       <v-app-bar class="pr-4"  title="GPT Enjoyers" >
-
-        <v-spacer></v-spacer>
-        <header-navigation/>
 
         <v-spacer></v-spacer>
         <v-btn

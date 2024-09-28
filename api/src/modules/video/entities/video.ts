@@ -1,16 +1,9 @@
-import {Column, Entity,PrimaryColumn} from 'typeorm';
+import {Column, Entity} from 'typeorm';
+import {BaseModel} from "framework";
 
 
 @Entity('videos')
-export class VideoModel {
-
-    @PrimaryColumn({
-        type: 'int',
-        generated: true,
-        generatedIdentity: "ALWAYS"
-    })
-    id!: string;
-
+export class VideoModel extends BaseModel {
     @Column('varchar')
     name!: string;
 }
