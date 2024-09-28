@@ -1,4 +1,5 @@
 import {App, IProvider} from "framework";
+import {VideoModule} from "../../modules/video";
 
 export class StartApp extends App {
 
@@ -7,10 +8,12 @@ export class StartApp extends App {
     }
 
     getName(): string {
-        return "stark-api-app";
+        return "hackaton-vmarkup-app";
     }
 
     public getProviders(): IProvider[] {
-        return [];
+        return [
+            new VideoModule(this.container)
+        ];
     }
 }
