@@ -1,5 +1,26 @@
 <template>
-  <v-card class="mx-auto px-4 py-4" max-width="600" title="Результат поиска" subtitle="Список видео подходящих под условия">
+  <v-container class="px-0" max-width="600">
+    <v-form class="d-flex py-4 mb-4" max-width="600">
+      <v-text-field
+        v-model="firstName"
+        class="mr-4"
+        label="Запрос"
+        variant="solo"
+      ></v-text-field>
+
+      <v-btn
+        :loading="loading"
+        color="success"
+        size="large"
+        type="button"
+        variant="elevated"
+        icon="mdi-magnify"
+      ></v-btn>
+    </v-form>
+  </v-container>
+
+  <v-card class="mx-auto px-4 py-4" max-width="600" title="Результат поиска"
+          subtitle="Список видео подходящих под условия">
 
     <v-table
       fixed-header
@@ -27,9 +48,13 @@
   </v-card>
 </template>
 <script>
+
+
 export default {
-  data () {
+  data() {
     return {
+      firstName: '',
+      lastName: '',
       desserts: [
         {
           name: 'Frozen Yogurt',
