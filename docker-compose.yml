@@ -9,10 +9,10 @@ services:
       - .env.example
       - .env
     volumes:
-      - ./app:/project/app
-    working_dir: /project/app
+      - ./web:/project/web
+    working_dir: /project/web
     ports:
-      - ${HTTP_PORT_HOST}:8080
+      - ${WEB_HTTP_PORT_HOST}:8080
     command:
       [
         sh,
