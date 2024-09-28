@@ -1,13 +1,35 @@
 <template>
-  <v-app>
-    <v-main>
-      <router-view />
-    </v-main>
+  <v-responsive class="border rounded">
+    <v-app :theme="theme">
+      <v-app-bar class="pr-4"  title="GPT Enjoyers" >
 
-    <AppFooter />
-  </v-app>
+        <v-spacer></v-spacer>
+        <header-navigation/>
+
+        <v-spacer></v-spacer>
+        <v-btn
+          :prepend-icon="theme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+          :text="theme === 'light' ? 'Светлая' : 'Темная'"
+          slim
+          @click="onClick"
+        ></v-btn>
+      </v-app-bar>
+
+      <v-main>
+        <v-container>
+          <router-view />
+        </v-container>
+      </v-main>
+    </v-app>
+  </v-responsive>
 </template>
 
 <script lang="ts" setup>
-  //
+import { ref } from 'vue'
+
+const theme = ref('light')
+
+function onClick () {
+  theme.value = theme.value === 'light' ? 'dark' : 'light'
+}
 </script>
