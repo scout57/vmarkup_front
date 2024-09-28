@@ -1,15 +1,15 @@
 import {Get, getRepository, JsonController, Params, Query,} from "framework";
-import {VideoModel} from "../../entities/video";
+import {Video} from "../../../entities/video";
 import {GetVideoListDto} from "./requests/get-list";
 
 @JsonController("/api/v1/video")
-export class HttpController {
+export class VideoController {
     constructor() {
     }
 
     @Get("/")
     public async index(@Query dto: GetVideoListDto) {
-        const videos = getRepository(VideoModel);
+        const videos = getRepository(Video);
         const items = await videos.find({
             take: dto.limit > 0 ? dto.limit : undefined,
             skip: dto.offset

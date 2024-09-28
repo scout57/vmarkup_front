@@ -3,7 +3,7 @@ import {BaseModel} from "framework";
 
 
 @Entity('videos')
-export class VideoModel extends BaseModel {
-    @Column('varchar')
+export class Video extends BaseModel {
+    @Column('int')
     name!: string;
 }
