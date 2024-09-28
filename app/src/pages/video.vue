@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto px-4 py-4 pb-6" max-width="600" title="Новое видео">
+  <v-card class="mx-auto px-4 py-4 pb-6" max-width="600" title="Новое видео" subtitle="Загрузка на сервер и запуск процесса разметки">
     <v-form
       v-model="form"
       @submit.prevent="onSubmit"
@@ -22,7 +22,7 @@
         variant="elevated"
         block
       >
-        Загрузить
+        Старт
       </v-btn>
     </v-form>
   </v-card>
