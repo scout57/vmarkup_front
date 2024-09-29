@@ -44,6 +44,7 @@ export class VideoController {
 
         const scenes: Record<number, {
             id: number,
+            original_id: number,
             detections: Array<{ class: string | null, avg: number | null }>,
             events: Array<{ name: string | null, probability: number | null }>,
             faces: Array<{ emotion_label: string | null, emotion_probability: number | null }>,
@@ -61,6 +62,7 @@ export class VideoController {
             if (scenes[item.id] === undefined) {
                 scenes[item.id] = {
                     id: item.id,
+                    original_id: 1,
                     detections: [],
                     events: [],
                     faces: [],
@@ -105,6 +107,7 @@ export class VideoController {
             if (scenes[item.scene_id] === undefined) {
                 scenes[item.scene_id] = {
                     id: item.scene_id,
+                    original_id: 1,
                     detections: [],
                     events: [],
                     faces: [],
@@ -149,6 +152,7 @@ export class VideoController {
             if (scenes[item.scene_id] === undefined) {
                 scenes[item.scene_id] = {
                     id: item.scene_id,
+                    original_id: 1,
                     detections: [],
                     events: [],
                     faces: [],
@@ -198,6 +202,7 @@ export class VideoController {
             if (scenes[item.scene_id] === undefined) {
                 scenes[item.scene_id] = {
                     id: item.scene_id,
+                    original_id: 1,
                     detections: [],
                     events: [],
                     faces: [],
@@ -236,6 +241,7 @@ export class VideoController {
             if (scenes[item.scene_id] === undefined) {
                 scenes[item.scene_id] = {
                     id: item.scene_id,
+                    original_id: 1,
                     detections: [],
                     events: [],
                     faces: [],

@@ -15,7 +15,40 @@
   </v-card>
 
   <v-tabs-window v-model="tab" v-if="file">
-    <v-tabs-window-item v-for="scene in file.scenes" :value="'tab-'+scene.id">
+    <v-tabs-window-item v-for="(scene, id) in file.scenes" :value="'tab-'+scene.id">
+
+
+      <v-card v-if="file" class="px-4 py-4 mb-4" max-height="500px" title="Аудио. Транскрипция"
+              subtitle="Формирование текста по аудио каналу" :loading="loading">
+        <v-timeline align="center" side="start" direction="horizontal"
+                    :truncate-line=" id === 0 ? 'start' : id === file.scenes.length -1 ? 'end' : undefined ">
+          <v-timeline-item
+            dot-color="pink"
+            size="small"
+            class="px-0"
+          >
+            <div class="d-flex flex-column align-center justify-center">
+              <strong>{{ scene.time_from }}</strong>
+              <div class="text-caption mb-2">
+                Начало сцены
+              </div>
+            </div>
+          </v-timeline-item>
+
+          <v-timeline-item
+            dot-color="teal-lighten-3"
+            size="small"
+          >
+            <div class="d-flex flex-column align-center justify-center">
+              <strong>{{ scene.time_to }}</strong>
+              <div class="text-caption mb-2">
+                Конец сцены
+              </div>
+            </div>
+          </v-timeline-item>
+        </v-timeline>
+
+      </v-card>
 
       <v-card class="px-4 py-4 mb-4" max-height="500px" title="Видео"
               subtitle="Анализ по видео каналу" :loading="loading">
@@ -42,7 +75,6 @@
           </v-row>
         </v-container>
       </v-card>
-
 
       <v-card v-if="file" class="px-4 py-4 mb-4" max-height="500px" title="Аудио. Транскрипция"
               subtitle="Формирование текста по аудио каналу" :loading="loading">
