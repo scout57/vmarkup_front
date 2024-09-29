@@ -6,15 +6,27 @@ import {Video} from "../../../entities/video";
 import {VideoSceneDetection} from "../../../entities/video-scene-detection";
 import {VideoSceneEvent} from "../../../entities/video-scene-event";
 import {VideoSceneFace} from "../../../entities/video-scene-face";
+import {VideoSceneAudio} from "../../../entities/video-scene-audio";
 
-type SceneFrameJson = {
+type VideoSceneFrameJson = {
     detections: Array<{ class: string, confidence: number }>
     events: Array<{ class_id: string, name: string, probability: number }>
     poi: Record<'faces', Array<{ emotion: { label: string, probability: number } }>>
 }
-type SceneJson = Record<string, Array<SceneFrameJson>>;
+type VideoSceneJson = Record<string, Array<VideoSceneFrameJson>>;
 
-@JsonController("/api/v1/video/import")
+
+type AudioSceneFrameJson = {
+    transcriptions: Array<{ text: string }>
+    summary: Array<{ summary: string }>
+    sentiment_analysis: Array<{ sentiment: string, confidence: number }>
+    clap_analysis: string[],
+    labeled_transcriptions: string[],
+
+}
+type AudioSceneJson = Record<string, AudioSceneFrameJson>;
+
+@JsonController("/api/v1/import")
 export class ImportVideoController {
     constructor() {
     }
@@ -26,21 +38,30 @@ export class ImportVideoController {
             throw new EntityNotFoundException('folder', dto.name);
         }
 
+        const videoId = await this.importVideo(dto.name);
+        await this.importAudio(dto.name, videoId);
+
+
+        return {success: true};
+    }
+
+
+    private async importVideo(filename: string): Promise<number> {
         // I/O operations
-        const path = `./shared/${dto.name}/video_scenes.json`
+        const path = `./shared/${filename}/video_scenes.json`
         const exists = fs.existsSync(path);
 
         if (!exists) {
-            throw new EntityNotFoundException('file', dto.name);
+            throw new EntityNotFoundException('file', filename);
         }
 
         const file = fs.readFileSync(path);
-        const json: SceneJson = JSON.parse(file.toString());
+        const json: VideoSceneJson = JSON.parse(file.toString());
 
         // save DB
 
         const video = await getRepository(Video).save({
-            name: dto.name,
+            name: filename,
         })
 
         for (const key in json) {
@@ -48,7 +69,6 @@ export class ImportVideoController {
             if (isNaN(id)) {
                 throw new Error(key + ' is not `scene_$ID`')
             }
-
 
             const scene = await getRepository(VideoScene).save({
                 video_id: video.id,
@@ -92,7 +112,51 @@ export class ImportVideoController {
             await getRepository(VideoSceneFace).save(faces);
         }
 
-        return {success: true};
+        return video.id;
     }
 
+    private async importAudio(filename: string, videoId: number): Promise<void> {
+        // I/O operations
+        const path = `./shared/${filename}/audio_scenes.json`
+        const exists = fs.existsSync(path);
+
+        if (!exists) {
+            throw new EntityNotFoundException('file', filename);
+        }
+
+        const file = fs.readFileSync(path);
+        const json: AudioSceneJson = JSON.parse(file.toString());
+
+        // save DB
+
+        for (const key in json) {
+            const id = parseInt(key.substring(6));
+            if (isNaN(id)) {
+                throw new Error('audio:' + key + ' is not `scene_$ID`')
+            }
+            const frame = json[key];
+
+            const scene = await getRepository(VideoScene).findOneOrFail({
+                where: {
+                    video_id: videoId,
+                    original_id: id,
+                }
+            })
+
+            // video detections
+            const audios: Array<Partial<VideoSceneAudio>> = [];
+
+            audios.push({
+                scene_id: scene.id,
+                transcription: frame.transcriptions[0]?.text,
+                summary: frame.summary[0]?.summary,
+                sentiment_label: frame.sentiment_analysis[0]?.sentiment,
+                sentiment_confidence: frame.sentiment_analysis[0]?.confidence,
+                clap_labels: frame.clap_analysis.join(',').toLowerCase(),
+                labeled_transcriptions: frame.labeled_transcriptions.join(',').toLowerCase(),
+            })
+
+            await getRepository(VideoSceneAudio).save(audios);
+        }
+    }
 }

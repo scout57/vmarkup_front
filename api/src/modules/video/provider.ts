@@ -7,6 +7,7 @@ import {VideoSceneDetection} from "./entities/video-scene-detection";
 import {VideoSceneEvent} from "./entities/video-scene-event";
 import {VideoSceneFace} from "./entities/video-scene-face";
 import {ImportVideoController} from "./http/v1/import/controller";
+import {VideoSceneAudio} from "./entities/video-scene-audio";
 
 export class VideoModule implements IProvider, ITypeormModule, IExpressModule {
 
@@ -14,7 +15,7 @@ export class VideoModule implements IProvider, ITypeormModule, IExpressModule {
     }
 
     getTypeormEntities(): Function[] {
-        return [Video, VideoScene, VideoSceneDetection, VideoSceneEvent, VideoSceneFace];
+        return [Video, VideoScene, VideoSceneDetection, VideoSceneEvent, VideoSceneFace, VideoSceneAudio];
     }
 
     getExpressControllers(): Function[] {
