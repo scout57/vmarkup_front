@@ -2,6 +2,23 @@ version: '3.7'
 
 services:
 
+  api:
+    image: node:20-alpine
+    restart: "no"
+    env_file:
+      - .env.example
+      - .env
+    volumes:
+      - ./api:/project/api
+    working_dir: /project/api
+    depends_on:
+      - postgres
+    ports:
+      - ${API_HTTP_PORT_HOST}:80
+    command: [ sh, -c, "npm c set cache /tmp --global && tail -f /dev/null" ]
+    networks:
+      vmarkup-network:
+
   web:
     image: node:20-alpine
     restart: "no"
@@ -9,13 +26,32 @@ services:
       - .env.example
       - .env
     volumes:
-      - ./app:/project/app
-    working_dir: /project/app
+      - ./web:/project/web
+    working_dir: /project/web
     ports:
-      - ${HTTP_PORT_HOST}:8080
-    command:
-      [
-        sh,
-        -c,
-        "npm c set cache /tmp --global && tail -f /dev/null"
-      ]
+      - ${WEB_HTTP_PORT_HOST}:8080
+    command: [ sh, -c, "npm c set cache /tmp --global && tail -f /dev/null" ]
+
+
+  postgres:
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: db_name
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - ${DB_PORT_HOST}:5432
+    networks:
+      vmarkup-network:
+
+
+
+volumes:
+  postgres-data:
+
+networks:
+  vmarkup-network:
+
