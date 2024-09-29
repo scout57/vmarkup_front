@@ -12,10 +12,13 @@
     >
       <v-tab v-for="scene in file.scenes" :text="'#'+scene.id" :value="'tab-'+scene.id"></v-tab>
     </v-tabs>
+  </v-card>
 
-    <v-tabs-window v-model="tab">
-      <v-tabs-window-item v-for="scene in file.scenes" :value="'tab-'+scene.id">
+  <v-tabs-window v-model="tab" v-if="file">
+    <v-tabs-window-item v-for="scene in file.scenes" :value="'tab-'+scene.id">
 
+      <v-card class="px-4 py-4 mb-4" max-height="500px" title="Видео"
+              subtitle="Анализ по видео каналу" :loading="loading">
         <v-container>
           <v-row no-gutters>
             <v-col cols="12" sm="4">
@@ -38,22 +41,36 @@
             </v-col>
           </v-row>
         </v-container>
+      </v-card>
 
-        <v-divider></v-divider>
 
+      <v-card v-if="file" class="px-4 py-4 mb-4" max-height="500px" title="Аудио. Транскрипция"
+              subtitle="Формирование текста по аудио каналу" :loading="loading">
+        <v-card-text>{{ scene.transcription }}</v-card-text>
+      </v-card>
 
-      </v-tabs-window-item>
-    </v-tabs-window>
-  </v-card>
+      <v-card v-if="file" class="px-4 py-4 mb-4" max-height="500px" title="Сводка"
+              subtitle="Краткий пересказ через LLM" :loading="loading">
+        <v-card-text>{{ scene.summary }}</v-card-text>
+      </v-card>
 
-  <v-card class="px-4 py-4" title="Карточка видео" subtitle="Общая сводка по целому файлу">
-    <v-form
-      v-model="form"
-      @submit.prevent="onSubmit"
-    >
+      <v-card v-if="file" class="px-4 py-4 mb-4" max-height="500px" title="Аудио. Тональность"
+              subtitle="Определение эмоциональной окраски" :loading="loading">
+        <v-card-text>{{ scene.sentiment_confidence }}% - {{ scene.sentiment_label }}</v-card-text>
+      </v-card>
 
-    </v-form>
-  </v-card>
+      <v-card v-if="file" class="px-4 py-4 mb-4" max-height="500px" title="Аудио. Тип аудио"
+              subtitle="Определение класса аудио" :loading="loading">
+        <v-card-text>{{ scene.clap_labels }}</v-card-text>
+      </v-card>
+
+      <v-card v-if="file" class="px-4 py-4 mb-4" max-height="500px" title="Аудио. Метка-триггер"
+              subtitle="Определение слов триггеров / синонимов" :loading="loading">
+        <v-card-text>{{ scene.labeled_transcriptions }}</v-card-text>
+      </v-card>
+
+    </v-tabs-window-item>
+  </v-tabs-window>
 </template>
 
 
