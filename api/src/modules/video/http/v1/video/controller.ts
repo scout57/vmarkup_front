@@ -37,7 +37,7 @@ export class VideoController {
             "\tavg(vsd.confidence)\n" +
             "from video_scenes vs \n" +
             "\tleft join video_scenes_detections vsd ON vs.id = vsd.scene_id \n" +
-            "where video_id = 1\n" +
+            `where video_id = ${id}\n` +
             "group by vs.id, vsd.\"class\" \n" +
             "order by vs.id, avg(vsd.confidence) desc"
         )
@@ -46,7 +46,13 @@ export class VideoController {
             id: number,
             detections: Array<{ class: string | null, avg: number | null }>,
             events: Array<{ name: string | null, probability: number | null }>,
-            faces: Array<{ emotion_label: string | null, emotion_probability: number | null }>
+            faces: Array<{ emotion_label: string | null, emotion_probability: number | null }>,
+            transcription: string,
+            summary: string,
+            sentiment_label: string,
+            sentiment_confidence: number,
+            clap_labels: string,
+            labeled_transcriptions: string,
         }> = {}
 
         for (const item of detections) {
@@ -56,6 +62,12 @@ export class VideoController {
                     detections: [],
                     events: [],
                     faces: [],
+                    transcription: '',
+                    summary: '',
+                    sentiment_label: '',
+                    sentiment_confidence: 1,
+                    clap_labels: '',
+                    labeled_transcriptions: '',
                 }
             }
 
@@ -80,7 +92,7 @@ export class VideoController {
             "\tmax(vse.probability) \"probability\"\n" +
             "from video_scenes vs \n" +
             "\tleft join video_scenes_events vse ON vs.id = vse.scene_id\n" +
-            "where video_id = 1\n" +
+            `where video_id = ${id}\n` +
             "group by vs.id, vse.\"name\" \n" +
             "order by vs.id, max(vse.probability) desc"
         )
@@ -92,6 +104,12 @@ export class VideoController {
                     detections: [],
                     events: [],
                     faces: [],
+                    transcription: '',
+                    summary: '',
+                    sentiment_label: '',
+                    sentiment_confidence: 1,
+                    clap_labels: '',
+                    labeled_transcriptions: '',
                 }
             }
 
@@ -116,7 +134,7 @@ export class VideoController {
             "\tmax(vsf.emotion_probability) \"emotion_probability\"\n" +
             "from video_scenes vs \n" +
             "\tleft join video_scenes_faces vsf ON vs.id = vsf.scene_id\n" +
-            "where video_id = 1\n" +
+            `where video_id = ${id}\n` +
             "group by vs.id, vsf.emotion_label \n" +
             "order by vs.id, max(vsf.emotion_probability) desc"
         )
@@ -128,6 +146,12 @@ export class VideoController {
                     detections: [],
                     events: [],
                     faces: [],
+                    transcription: '',
+                    summary: '',
+                    sentiment_label: '',
+                    sentiment_confidence: 1,
+                    clap_labels: '',
+                    labeled_transcriptions: '',
                 }
             }
 
@@ -143,6 +167,47 @@ export class VideoController {
                 emotion_label: item.emotion_label,
                 emotion_probability: Math.round(item.emotion_probability * 100) / 100
             });
+        }
+
+
+        const audios: Array<{
+            scene_id: number,
+            transcription: string,
+            summary: string,
+            sentiment_label: string,
+            sentiment_confidence: number,
+            clap_labels: string,
+            labeled_transcriptions: string,
+        }> = await runner.query(
+            "select \n" +
+            "\t*\n" +
+            "from video_scenes_audios vsa \n" +
+            "\tleft join video_scenes vs ON vsa.scene_id = vs.id \n" +
+            `where vs.video_id = ${id}`
+        )
+
+        for (const item of audios) {
+            if (scenes[item.scene_id] === undefined) {
+                scenes[item.scene_id] = {
+                    id: item.scene_id,
+                    detections: [],
+                    events: [],
+                    faces: [],
+                    transcription: '',
+                    summary: '',
+                    sentiment_label: '',
+                    sentiment_confidence: 1,
+                    clap_labels: '',
+                    labeled_transcriptions: '',
+                }
+            }
+
+            scenes[item.scene_id].transcription = item.transcription
+            scenes[item.scene_id].summary = item.summary
+            scenes[item.scene_id].sentiment_label = item.sentiment_label
+            scenes[item.scene_id].sentiment_confidence = Math.round(item.sentiment_confidence * 100) / 100
+            scenes[item.scene_id].clap_labels = item.clap_labels
+            scenes[item.scene_id].labeled_transcriptions = item.labeled_transcriptions
         }
 
 
