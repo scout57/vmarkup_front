@@ -15,10 +15,10 @@ export class VideoController {
 
         let items = [];
 
-        if (dto.search) {
+        if (dto.search && dto.search !== '') {
             items = await getConnection().createQueryRunner().query('' +
                 'select distinct \n' +
-                '\tvs.video_id,\n' +
+                '\tvs.video_id "id",\n' +
                 '\tv."name"\n' +
                 'from video_scenes vs\n' +
                 '\tleft join video_scenes_audios vsa ON vs.id = vsa.scene_id\n' +

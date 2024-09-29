@@ -2,7 +2,7 @@
   <v-container class="px-0">
     <v-form class="d-flex">
       <v-text-field
-        v-model="search"
+        v-model="searchBar"
         class="mr-4"
         label="Введите запрос"
         variant="solo"
@@ -15,6 +15,7 @@
         type="button"
         variant="elevated"
         icon="mdi-magnify"
+        @click="()=>search = searchBar"
       ></v-btn>
     </v-form>
   </v-container>
@@ -64,6 +65,7 @@ export default {
       },
     ],
     search: '',
+    searchBar: '',
     serverItems: [],
     loading: true,
     totalItems: 0,
@@ -77,12 +79,13 @@ export default {
       const result = await http.request('/api/v1/video', {}, {
         limit: itemsPerPage,
         offset: (page - 1) * itemsPerPage,
+        search: this.search,
       }, {}, 'GET')
 
       this.serverItems = result.data.items;
       this.totalItems = result.data.meta.total;
       this.loading = false;
-      },
+    },
   },
 }
 </script>
