@@ -1,7 +1,8 @@
 <template>
   <v-breadcrumbs :items="items"></v-breadcrumbs>
 
-  <v-card class="px-4 py-4 mb-4" max-height="500px" title="Сцены" subtitle="Здесь можно посмотреть каждую сцену подробно">
+  <v-card v-if="file" class="px-4 py-4 mb-4" max-height="500px" title="Сцены"
+          subtitle="Здесь можно посмотреть каждую сцену подробно" :loading="loading">
     <v-tabs
       v-model="tab"
       color="primary"
@@ -9,30 +10,15 @@
       class="overflow-x-auto"
       show-arrows
     >
-      <v-tab v-for="i in 100" :text="'#'+i" :value="'tab-'+i"></v-tab>
+      <v-tab v-for="scene in file.scenes" :text="'#'+scene.id" :value="'tab-'+scene.id"></v-tab>
     </v-tabs>
 
     <v-tabs-window v-model="tab">
-      <v-tabs-window-item v-for="i in 100" :value="'tab-'+i">
-        <v-card flat>
-          <v-card-text>
-            <p>
-              Sed aliquam ultrices mauris. Donec posuere vulputate arcu. Morbi ac felis. Etiam feugiat lorem non
-              metus. Sed a libero.
-            </p>
-
-            <p>
-              Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Aenean tellus metus, bibendum sed,
-              posuere ac, mattis non, nunc. Aliquam lobortis. Aliquam lobortis. Suspendisse non nisl sit amet velit
-              hendrerit rutrum.
-            </p>
-
-            <p class="mb-0">
-              Phasellus dolor. Fusce neque. Fusce fermentum odio nec arcu. Pellentesque libero tortor, tincidunt et,
-              tincidunt eget, semper nec, quam. Phasellus blandit leo ut odio.
-            </p>
-          </v-card-text>
-        </v-card>
+      <v-tabs-window-item v-for="scene in file.scenes" :value="'tab-'+scene.id">
+        <v-card-title>Объекты</v-card-title>
+        <v-card-subtitle v-for="detection in scene.detections">
+          {{ detection.avg }}% - {{ detection.class }}
+        </v-card-subtitle>
       </v-tabs-window-item>
     </v-tabs-window>
   </v-card>
@@ -56,6 +42,9 @@ const onSubmit = () => {
 </script>
 
 <script>
+import {http} from "@/shared";
+import {fi} from "vuetify/locale";
+
 export default {
   data: () => ({
     tab: null,
@@ -70,5 +59,25 @@ export default {
     file: undefined,
     loading: false,
   }),
+  mounted() {
+    this.load();
+  },
+  methods: {
+    async load() {
+      this.loading = true;
+      try {
+        const result = await http.request(`/api/v1/video/${this.$route.params.id}`, {}, {}, {}, 'GET')
+        this.file = result.data;
+        console.log(result)
+      } finally {
+        this.loading = false;
+      }
+    },
+    formatDetection(scene) {
+      return scene.detections.map(s => {
+        return s.class + ` (${s.avg})`
+      }).join(',');
+    }
+  },
 }
 </script>

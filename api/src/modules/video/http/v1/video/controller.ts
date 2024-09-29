@@ -68,7 +68,7 @@ export class VideoController {
             }
 
             scenes[item.id].detections.push({
-                avg: item.avg,
+                avg: Math.round(item.avg * 100) / 100,
                 class: item.class
             });
         }
@@ -146,6 +146,6 @@ export class VideoController {
         }
 
 
-        return {ok: true, scenes: Object.values(scenes)};
+        return {scenes: Object.values(scenes)};
     }
 }
