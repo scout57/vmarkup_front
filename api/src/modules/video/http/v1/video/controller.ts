@@ -1,6 +1,7 @@
 import {Get, getConnection, getRepository, JsonController, Params, Query,} from "framework";
 import {Video} from "../../../entities/video";
 import {GetVideoListDto} from "./requests/get-list";
+import {VideoScene} from "../../../entities/video-scene";
 
 @JsonController("/api/v1/video")
 export class VideoController {
@@ -260,7 +261,20 @@ export class VideoController {
             scenes[item.scene_id].time_to = item.to
         }
 
+        for (const id in scenes) {
+            const fromDb = await getRepository(VideoScene).findOneOrFail({
+                where: {
+                    id: id,
+                }
+            })
 
-        return {scenes: Object.values(scenes)};
+            scenes[id].original_id = fromDb.original_id
+        }
+
+        return {
+            scenes: Object.values(scenes)
+                .filter(s => s.time_to !== '')
+                .sort((a, b) => a.original_id > b.original_id ? 1 : -1)
+        };
     }
 }

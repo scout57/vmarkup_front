@@ -199,7 +199,7 @@ export class ImportVideoController {
             await getRepository(VideoSceneCoords).save({
                 scene_id: scene.id,
                 from: shots[first].start_time,
-                to: shots[first].end_time,
+                to: shots[last].end_time,
             });
         }
     }

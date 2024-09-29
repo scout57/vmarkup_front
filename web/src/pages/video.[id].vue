@@ -18,19 +18,18 @@
     <v-tabs-window-item v-for="(scene, id) in file.scenes" :value="'tab-'+scene.id">
 
 
-      <v-card v-if="file" class="px-4 py-4 mb-4" max-height="500px" title="Аудио. Транскрипция"
-              subtitle="Формирование текста по аудио каналу" :loading="loading">
+      <v-card v-if="file" class="px-4 pb-4 pt-6 mb-4" max-height="500px" :loading="loading">
         <v-timeline align="center" side="start" direction="horizontal"
                     :truncate-line=" id === 0 ? 'start' : id === file.scenes.length -1 ? 'end' : undefined ">
           <v-timeline-item
-            dot-color="pink"
+            dot-color="teal-lighten-3"
             size="small"
-            class="px-0"
+            class=""
           >
             <div class="d-flex flex-column align-center justify-center">
               <strong>{{ scene.time_from }}</strong>
               <div class="text-caption mb-2">
-                Начало сцены
+                Начало
               </div>
             </div>
           </v-timeline-item>
@@ -42,7 +41,7 @@
             <div class="d-flex flex-column align-center justify-center">
               <strong>{{ scene.time_to }}</strong>
               <div class="text-caption mb-2">
-                Конец сцены
+                Конец
               </div>
             </div>
           </v-timeline-item>
