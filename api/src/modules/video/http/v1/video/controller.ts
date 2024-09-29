@@ -95,7 +95,7 @@ export class VideoController {
                 }
             }
 
-            if (item.name === null) {
+            if (item.name === null || item.probability === null) {
                 continue;
             }
 
@@ -105,7 +105,7 @@ export class VideoController {
 
             scenes[item.scene_id].events.push({
                 name: item.name,
-                probability: item.probability
+                probability: Math.round(item.probability * 100) / 100
             });
         }
 
@@ -141,7 +141,7 @@ export class VideoController {
 
             scenes[item.scene_id].faces.push({
                 emotion_label: item.emotion_label,
-                emotion_probability: item.emotion_probability
+                emotion_probability: Math.round(item.emotion_probability * 100) / 100
             });
         }
 

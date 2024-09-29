@@ -15,10 +15,31 @@
 
     <v-tabs-window v-model="tab">
       <v-tabs-window-item v-for="scene in file.scenes" :value="'tab-'+scene.id">
-        <v-card-title>Объекты</v-card-title>
-        <v-card-subtitle v-for="detection in scene.detections">
-          {{ detection.avg }}% - {{ detection.class }}
-        </v-card-subtitle>
+
+        <v-container>
+          <v-row no-gutters>
+            <v-col cols="12" sm="4">
+              <v-card-subtitle>Объекты</v-card-subtitle>
+              <v-card-text class="py-0" v-for="item in scene.detections">
+                {{ item.avg }}% - {{ item.class }}
+              </v-card-text>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-card-subtitle>События</v-card-subtitle>
+              <v-card-text class="py-0" v-for="item in scene.events">
+                {{ item.probability }}% - {{ item.name }}
+              </v-card-text>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-card-subtitle>Эмоции</v-card-subtitle>
+              <v-card-text class="py-0" v-for="item in scene.faces">
+                {{ item.emotion_probability }}% - {{ item.emotion_label }}
+              </v-card-text>
+            </v-col>
+          </v-row>
+        </v-container>
+
+
       </v-tabs-window-item>
     </v-tabs-window>
   </v-card>
