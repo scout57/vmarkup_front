@@ -7,6 +7,7 @@ import {VideoSceneDetection} from "../../../entities/video-scene-detection";
 import {VideoSceneEvent} from "../../../entities/video-scene-event";
 import {VideoSceneFace} from "../../../entities/video-scene-face";
 import {VideoSceneAudio} from "../../../entities/video-scene-audio";
+import {VideoSceneCoords} from "../../../entities/video-scene-coords";
 
 type VideoSceneFrameJson = {
     detections: Array<{ class: string, confidence: number }>
@@ -26,6 +27,12 @@ type AudioSceneFrameJson = {
 }
 type AudioSceneJson = Record<string, AudioSceneFrameJson>;
 
+
+type ShotsBySceneJson = Record<string, string[]>;
+
+
+type ShotsJson = Record<string, { start_time: string, end_time: string, }>;
+
 @JsonController("/api/v1/import")
 export class ImportVideoController {
     constructor() {
@@ -40,23 +47,27 @@ export class ImportVideoController {
 
         const videoId = await this.importVideo(dto.name);
         await this.importAudio(dto.name, videoId);
+        await this.importShots(dto.name, videoId);
 
 
         return {success: true};
     }
 
-
-    private async importVideo(filename: string): Promise<number> {
+    private async loadFile<T>(folder: string, name: string): Promise<T> {
         // I/O operations
-        const path = `./shared/${filename}/video_scenes.json`
+        const path = `./shared/${folder}/${name}`
         const exists = fs.existsSync(path);
 
         if (!exists) {
-            throw new EntityNotFoundException('file', filename);
+            throw new EntityNotFoundException('file', path);
         }
 
         const file = fs.readFileSync(path);
-        const json: VideoSceneJson = JSON.parse(file.toString());
+        return JSON.parse(file.toString()) as T;
+    }
+
+    private async importVideo(filename: string): Promise<number> {
+        const json = await this.loadFile<VideoSceneJson>(filename, 'video_scenes.json')
 
         // save DB
 
@@ -116,16 +127,7 @@ export class ImportVideoController {
     }
 
     private async importAudio(filename: string, videoId: number): Promise<void> {
-        // I/O operations
-        const path = `./shared/${filename}/audio_scenes.json`
-        const exists = fs.existsSync(path);
-
-        if (!exists) {
-            throw new EntityNotFoundException('file', filename);
-        }
-
-        const file = fs.readFileSync(path);
-        const json: AudioSceneJson = JSON.parse(file.toString());
+        const json = await this.loadFile<AudioSceneJson>(filename, 'audio_scenes.json')
 
         // save DB
 
@@ -157,6 +159,48 @@ export class ImportVideoController {
             })
 
             await getRepository(VideoSceneAudio).save(audios);
+        }
+    }
+
+    private async importShots(filename: string, videoId: number): Promise<void> {
+        const shotsByScene = await this.loadFile<ShotsBySceneJson>(filename, 'shots_by_scene.json');
+        const shots = await this.loadFile<ShotsJson>(filename, 'shots.json');
+
+
+        // save DB
+
+        for (const key in shotsByScene) {
+            const id = parseInt(key);
+            if (isNaN(id)) {
+                throw new Error('shots:' + key + ' is not `scene_$ID`')
+            }
+
+
+            const scene = await getRepository(VideoScene).findOneOrFail({
+                where: {
+                    video_id: videoId,
+                    original_id: id,
+                }
+            })
+
+            const first = shotsByScene[key][0];
+            const firstShot = shots[first];
+            if (firstShot === undefined) {
+                throw new EntityNotFoundException(`first shot ${first}`, first)
+            }
+
+            const last = shotsByScene[key][shotsByScene[key].length - 1];
+            const lastShot = shots[last];
+            if (lastShot === undefined) {
+                throw new EntityNotFoundException(`last shot ${last}`, last)
+            }
+
+
+            await getRepository(VideoSceneCoords).save({
+                scene_id: scene.id,
+                from: shots[first].start_time,
+                to: shots[first].end_time,
+            });
         }
     }
 }
