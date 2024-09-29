@@ -1,4 +1,4 @@
-import { bootstrap } from "framework";
-import { StartApp } from "./app";
+import {bootstrap} from "framework";
+import {StartApp} from "./app";
 
 void bootstrap(StartApp);
