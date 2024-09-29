@@ -53,6 +53,8 @@ export class VideoController {
             sentiment_confidence: number,
             clap_labels: string,
             labeled_transcriptions: string,
+            time_from: string,
+            time_to: string,
         }> = {}
 
         for (const item of detections) {
@@ -68,6 +70,8 @@ export class VideoController {
                     sentiment_confidence: 1,
                     clap_labels: '',
                     labeled_transcriptions: '',
+                    time_from: '',
+                    time_to: '',
                 }
             }
 
@@ -110,6 +114,8 @@ export class VideoController {
                     sentiment_confidence: 1,
                     clap_labels: '',
                     labeled_transcriptions: '',
+                    time_from: '',
+                    time_to: '',
                 }
             }
 
@@ -152,6 +158,8 @@ export class VideoController {
                     sentiment_confidence: 1,
                     clap_labels: '',
                     labeled_transcriptions: '',
+                    time_from: '',
+                    time_to: '',
                 }
             }
 
@@ -199,6 +207,8 @@ export class VideoController {
                     sentiment_confidence: 1,
                     clap_labels: '',
                     labeled_transcriptions: '',
+                    time_from: '',
+                    time_to: '',
                 }
             }
 
@@ -208,6 +218,40 @@ export class VideoController {
             scenes[item.scene_id].sentiment_confidence = Math.round(item.sentiment_confidence * 100) / 100
             scenes[item.scene_id].clap_labels = item.clap_labels
             scenes[item.scene_id].labeled_transcriptions = item.labeled_transcriptions
+        }
+
+        const coords: Array<{
+            scene_id: number,
+            from: string,
+            to: string,
+        }> = await runner.query(
+            "select \n" +
+            "\t*\n" +
+            "from video_scenes_coords t\n" +
+            "\tleft join video_scenes vs ON t.scene_id = vs.id \n" +
+            `where vs.video_id = ${id}`
+        )
+
+        for (const item of coords) {
+            if (scenes[item.scene_id] === undefined) {
+                scenes[item.scene_id] = {
+                    id: item.scene_id,
+                    detections: [],
+                    events: [],
+                    faces: [],
+                    transcription: '',
+                    summary: '',
+                    sentiment_label: '',
+                    sentiment_confidence: 1,
+                    clap_labels: '',
+                    labeled_transcriptions: '',
+                    time_from: '',
+                    time_to: '',
+                }
+            }
+
+            scenes[item.scene_id].time_from = item.from
+            scenes[item.scene_id].time_to = item.to
         }
 
 
