@@ -6,4 +6,8 @@ export class GetVideoListDto {
 
     @ApiProperty({type: 'number'})
     offset!: number;
+
+    @ApiProperty({type: 'string', optional: true})
+    search!: string | undefined;
+
 }

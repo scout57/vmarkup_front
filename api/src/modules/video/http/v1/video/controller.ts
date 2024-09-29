@@ -10,13 +10,28 @@ export class VideoController {
 
     @Get("/")
     public async index(@Query dto: GetVideoListDto) {
+        const limit = dto.limit > 0 ? dto.limit : undefined;
         const videos = getRepository(Video)
 
-        const items = await videos.find({
-            take: dto.limit > 0 ? dto.limit : undefined,
-            skip: dto.offset,
-            // relations: ['scenes', 'scenes.detections', 'scenes.events', 'scenes.faces']
-        });
+        let items = [];
+
+        if (dto.search) {
+            items = await getConnection().createQueryRunner().query('' +
+                'select distinct \n' +
+                '\tvs.video_id,\n' +
+                '\tv."name"\n' +
+                'from video_scenes vs\n' +
+                '\tleft join video_scenes_audios vsa ON vs.id = vsa.scene_id\n' +
+                '\tleft join videos v on vs.video_id = v.id\n' +
+                `where vsa.transcription like '%${dto.search}%'
+                 limit $1 offset $2`, [limit, dto.offset]);
+        } else {
+            items = await videos.find({
+                take: limit,
+                skip: dto.offset,
+            });
+        }
+
 
         const count = await videos.count();
         return {

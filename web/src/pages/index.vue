@@ -82,13 +82,7 @@ export default {
       this.serverItems = result.data.items;
       this.totalItems = result.data.meta.total;
       this.loading = false;
-
-      // http.FakeAPI.fetch({page, itemsPerPage, sortBy}).then(({items, total}) => {
-      //   this.serverItems = items
-      //   this.totalItems = total
-      //   this.loading = false
-      // })
-    },
+      },
   },
 }
 </script>
