@@ -39,6 +39,8 @@
           </v-row>
         </v-container>
 
+        <v-divider></v-divider>
+
 
       </v-tabs-window-item>
     </v-tabs-window>
